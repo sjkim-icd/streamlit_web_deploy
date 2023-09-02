@@ -15,8 +15,8 @@ st.subheader("공시지가")
 import pandas as pd
 import requests
 import json
-import openpyxl
-from openpyxl.workbook import Workbook
+# import openpyxl
+# from openpyxl.workbook import Workbook
 
 def ApartHousingPriceService(api_key, pnu, stdrYear):
     pageNo =1
@@ -96,14 +96,14 @@ def main():
 
         st.table(st.session_state["table_data"])
 
-    if st.button("엑셀 다운로드"):
-        # if not st.session_state["table_data"]:
-        #     st.warning("생성된 데이터가 없습니다.")
-        # else:
-        df = pd.DataFrame(st.session_state["table_data"])
-        print('df',df)
-        df.to_excel("공동주택가격.xlsx", index=False)
-        st.success("엑셀 파일 정상적으로 생성되었습니다.")
+    # if st.button("엑셀 다운로드"):
+    #     # if not st.session_state["table_data"]:
+    #     #     st.warning("생성된 데이터가 없습니다.")
+    #     # else:
+    #     df = pd.DataFrame(st.session_state["table_data"])
+    #     print('df',df)
+    #     df.to_excel("공동주택가격.xlsx", index=False)
+    #     st.success("엑셀 파일 정상적으로 생성되었습니다.")
 
 
 if __name__ == "__main__":
