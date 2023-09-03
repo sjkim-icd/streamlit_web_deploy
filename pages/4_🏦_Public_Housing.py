@@ -70,7 +70,8 @@ def main():
     st.session_state['pnu_cds'] = 0 
     st.session_state["pnu_cds"] = pnu_cd_selected[pnu_cd_selected['법정동명'].isin(selected_pnus)]   
 
-    filter_am = st.text_input("필터링 금액을 입력하세요 ex) 100000000")
+    filter_am_st = st.number_input("공시가격 하단 범위 입력하세요 ex) 0")
+    filter_am_end = st.number_input("공시가격 상단 범위 입력하세요 ex) 100000000")
     serviceKey = requests.utils.unquote(api_key)
 
     if "table_data" not in st.session_state:
@@ -85,7 +86,12 @@ def main():
 
         for selected_pnu_cd in st.session_state["pnu_cds"]['법정동코드']:
             house_price = ApartHousingPriceService(serviceKey, selected_pnu_cd, stdrYear)
-            house_price_filtered = house_price[house_price['pblntfPc'] <= filter_am]
+            house_price = house_price.astype({'pblntfPc':'float32'})
+            print('type',house_price.dtypes)
+
+            # house_price_filtered = house_price[house_price['pblntfPc'] <= filter_am]
+            house_price_filtered = house_price[house_price['pblntfPc'].between(filter_am_st,filter_am_end)]
+            # st.session_state["table_data"] = st.session_state["table_data"][st.session_state["table_data"]['areaForExclusiveUse'].between(filter_am_st,filter_am_end)]
             st.session_state["table_data"] = st.session_state["table_data"].append(house_price_filtered)
 
         st.session_state["table_data"] = st.session_state["table_data"].sort_values(by=['pblntfPc'])        
@@ -93,17 +99,22 @@ def main():
 '기준년도','기준월','공동주택코드','공동주택구분코드','공동주택구분명','특수지명','공동주택명','동명','층명',
 '호명','전용면적','공시가격','데이터기준일자'] 
 
-
         st.table(st.session_state["table_data"])
+        
+    NM = st.text_input("파일명을 지정하세요")
+    if st.button("엑셀 다운로드"):
+        
+        # if not st.session_state["table_data"]:
+        #     st.warning("생성된 데이터가 없습니다.")
+        # else:
+        df = pd.DataFrame(st.session_state["table_data"])
+        print('df',df)
+        df.to_excel("공동주택가격_"+ NM + ".xlsx", index=False)
+        st.success("엑셀 파일 정상적으로 생성되었습니다.")
 
-    # if st.button("엑셀 다운로드"):
-    #     # if not st.session_state["table_data"]:
-    #     #     st.warning("생성된 데이터가 없습니다.")
-    #     # else:
-    #     df = pd.DataFrame(st.session_state["table_data"])
-    #     print('df',df)
-    #     df.to_excel("공동주택가격.xlsx", index=False)
-    #     st.success("엑셀 파일 정상적으로 생성되었습니다.")
+
+
+
 
 
 if __name__ == "__main__":

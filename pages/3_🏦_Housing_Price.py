@@ -95,8 +95,12 @@ def main():
 
     serviceKey = requests.utils.unquote(api_key)
 
- 
-    areaForExclusiveUse = st.text_input("전용면적 구간을 입력하세요")
+    st.write('전용면적 84㎡(25평형) = 공급면적 34평형(114㎡)')
+    area_ExclusiveUse_st = st.number_input("전용면적 시작 구간을 입력하세요")
+    area_ExclusiveUse_end = st.number_input("전용면적 끝 구간을 입력하세요")
+    # print('area_ExclusiveUse',area_ExclusiveUse)
+    # area_ExclusiveUse = float(area_ExclusiveUse)
+    # print('area_ExclusiveUse',area_ExclusiveUse)
 
     if "table_data" not in st.session_state:
         st.session_state["table_data"] = []
@@ -110,15 +114,19 @@ def main():
             selected_pnu_cd = str(selected_pnu_cd)
             house_price = getRTMSDataSvcAptTrade(selected_pnu_cd, stdrYear, serviceKey)
             st.session_state["table_data"] = st.session_state["table_data"].append(house_price)
-            
-        st.session_state["table_data"] = st.session_state["table_data"][st.session_state["table_data"]['areaForExclusiveUse'] == areaForExclusiveUse]
-        st.session_state["table_data"] = st.session_state["table_data"].sort_values(by=['dealAmount'])      
+
+        print(st.session_state["table_data"].dtypes)
+        st.session_state["table_data"] = st.session_state["table_data"].astype({'areaForExclusiveUse':'float32'})
+
+        print(st.session_state["table_data"].dtypes)    
+        st.session_state["table_data"] = st.session_state["table_data"][st.session_state["table_data"]['areaForExclusiveUse'].between(area_ExclusiveUse_st,area_ExclusiveUse_end)]
+        print('cf',st.session_state["table_data"][st.session_state["table_data"]['areaForExclusiveUse'].between(area_ExclusiveUse_st,area_ExclusiveUse_end)])            
         st.session_state["table_data"].columns = ['법정동','아파트', '거래금액','건축년도','년','월','일','전용면적','지번','지역코드','층']
-
-
-
+        st.session_state["table_data"] = st.session_state["table_data"].sort_values(by=['거래금액'], ascending=False)  
 
         st.table(st.session_state["table_data"])
+
+
 
 if __name__ == "__main__":
     main()
